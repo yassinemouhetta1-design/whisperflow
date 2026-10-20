@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>WhisperFlow</title>
+  <link rel="icon" type="image/x-icon" href="icon.ico">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Pilule flottante d'état -->
+  <div class="dynamic-island-container" id="dynamicIsland">
+    <div class="island-pill" id="islandPill">
+      <div class="island-content island-idle" id="islandIdle">
+        <span class="island-dot ready"></span>
+        <span class="island-label">Prêt</span>
+      </div>
+      <div class="island-content island-recording" id="islandRecording" style="display: none;">
+        <span class="island-dot recording-pulse"></span>
+        <div class="island-waves">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span class="island-label" id="islandRecText">Écoute…</span>
+        <span class="island-timer" id="islandTimer">00:00</span>
+      </div>
+      <div class="island-content island-transcribing" id="islandTranscribing" style="display: none;">
+        <div class="island-spinner"></div>
+        <span class="island-label">Transcription…</span>
+      </div>
+      <div class="island-content island-done" id="islandDone" style="display: none;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span class="island-label" id="islandDoneText">Transcrit</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- En-tête -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-wrapper">
+          <div class="logo-icon">
+            <!-- Glyphe officiel Wispr : 5 barres sonores -->
+            <svg width="26" height="26" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.62 0.24C0.73 0.24 0 0.96 0 1.85V20.93C0 21.82 0.73 22.54 1.62 22.54C2.51 22.54 3.24 21.82 3.24 20.93V1.85C3.24 0.96 2.51 0.24 1.62 0.24Z" fill="currentColor"/>
+              <path d="M6.49 10.46C5.59 10.46 4.87 11.18 4.87 12.06V18.69C4.87 19.58 5.59 20.30 6.49 20.30C7.38 20.30 8.11 19.58 8.11 18.69V12.06C8.11 11.18 7.38 10.46 6.49 10.46Z" fill="currentColor"/>
+              <path d="M11.35 3.89C10.46 3.89 9.73 4.61 9.73 5.50V17.13C9.73 18.02 10.46 18.73 11.35 18.73C12.24 18.73 12.97 18.02 12.97 17.13V5.50C12.97 4.61 12.24 3.89 11.35 3.89Z" fill="currentColor"/>
+              <path d="M16.22 10.46C15.32 10.46 14.59 11.18 14.59 12.06V18.69C14.59 19.58 15.32 20.30 16.22 20.30C17.11 20.30 17.84 19.58 17.84 18.69V12.06C17.84 11.18 17.11 10.46 16.22 10.46Z" fill="currentColor"/>
+              <path d="M21.08 0.24C20.19 0.24 19.46 0.96 19.46 1.85V20.93C19.46 21.82 20.19 22.54 21.08 22.54C21.97 22.54 22.70 21.82 22.70 20.93V1.85C22.70 0.96 21.97 0.24 21.08 0.24Z" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+        <div class="header-title-box">
+          <div class="title-row">
+            <h1 class="app-title">WhisperFlow</h1>
+          </div>
+          <p class="app-subtitle">Dictée vocale 100 % locale • Whisper large-v3-turbo sur votre GPU</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="status-badge ready" id="headerStatusBadge">
+          <span class="status-pulse-dot"></span>
+          <span id="statusText">Modèle prêt</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Onglets -->
+    <nav class="nav-tabs" role="tablist" aria-label="Sections">
+      <button class="tab-btn active" data-tab="tab-keys" role="tab" aria-selected="true" tabindex="0">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+          <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"></path>
+        </svg>
+        <span>Raccourcis</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-test" role="tab" aria-selected="false" tabindex="-1">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" x2="12" y1="19" y2="22"></line>
+        </svg>
+        <span>Studio</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-settings" role="tab" aria-selected="false" tabindex="-1">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>Paramètres</span>
+      </button>
+    </nav>
+
+    <!-- Contenu -->
+    <main class="main-content">
+      <!-- ============================================== -->
+      <!-- ONGLET 1 : RACCOURCIS -->
+      <!-- ============================================== -->
+      <section id="tab-keys" class="tab-content active" role="tabpanel">
+        <div class="glass-card callout-card">
+          <div class="callout-icon-box">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+          </div>
+          <div class="callout-text">
+            <h3>Raccourcis globaux actifs</h3>
+            <p>Cliquez sur une touche pour la réassigner, ou choisissez une suggestion. Vos raccourcis fonctionnent dans toutes vos applications (Word, Discord, navigateur…).</p>
+            <p><strong>Alt + ,</strong> colle la dernière transcription. Même si vous avez dicté sans champ ouvert, cliquez ensuite dans une zone de texte et appuyez sur Alt + , (virgule). Le dernier texte reste disponible jusqu'à la fermeture de l'application.</p>
+          </div>
+        </div>
+
+        <div class="key-cards-list">
+          <!-- Carte 1 : Push-to-Talk -->
+          <div class="key-card" data-action="push_to_talk">
+            <div class="key-card-primary">
+              <div class="key-icon push">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+              </div>
+              <div class="key-meta">
+                <div class="meta-title-row">
+                  <h4>Dictée push-to-talk</h4>
+                  <span class="tag-rec">Recommandé</span>
+                </div>
+                <p>Maintenez la touche enfoncée pour parler, relâchez pour insérer le texte.</p>
+              </div>
+            </div>
+
+            <div class="key-card-controls">
+              <div class="keycap-container" id="boxPushKey" title="Cliquez pour réassigner" role="button" tabindex="0" aria-label="Réassigner la touche de dictée push-to-talk">
+                <div class="keycap" id="badgePushKey">Ctrl + Win</div>
+              </div>
+
+              <button class="btn-assign" data-action="push_to_talk">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span>Changer</span>
+              </button>
+            </div>
+
+            <div class="preset-chips">
+              <span class="preset-label">Suggestions :</span>
+              <button class="chip" data-action="push_to_talk" data-key="mouse5">Souris 5</button>
+              <button class="chip" data-action="push_to_talk" data-key="mouse4">Souris 4</button>
+              <button class="chip" data-action="push_to_talk" data-key="copilot">Copilot</button>
+              <button class="chip" data-action="push_to_talk" data-key="ctrl+win">Ctrl + Win</button>
+              <button class="chip" data-action="push_to_talk" data-key="f8">F8</button>
+              <button class="chip" data-action="push_to_talk" data-key="alt+space">Alt + Espace</button>
+            </div>
+          </div>
+
+          <!-- Carte 2 : Bascule -->
+          <div class="key-card" data-action="toggle">
+            <div class="key-card-primary">
+              <div class="key-icon toggle">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+              </div>
+              <div class="key-meta">
+                <div class="meta-title-row">
+                  <h4>Dictée bascule</h4>
+                  <span class="tag-subtle">Mains libres</span>
+                </div>
+                <p>Appuyez une fois pour commencer à dicter, appuyez à nouveau pour transcrire.</p>
+              </div>
+            </div>
+
+            <div class="key-card-controls">
+              <div class="keycap-container" id="boxToggleKey" title="Cliquez pour réassigner" role="button" tabindex="0" aria-label="Réassigner la touche de dictée bascule">
+                <div class="keycap" id="badgeToggleKey">Souris 5</div>
+              </div>
+
+              <button class="btn-assign" data-action="toggle">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span>Changer</span>
+              </button>
+            </div>
+
+            <div class="preset-chips">
+              <span class="preset-label">Suggestions :</span>
+              <button class="chip" data-action="toggle" data-key="mouse5">Souris 5</button>
+              <button class="chip" data-action="toggle" data-key="mouse4">Souris 4</button>
+              <button class="chip" data-action="toggle" data-key="copilot">Copilot</button>
+              <button class="chip" data-action="toggle" data-key="f9">F9</button>
+              <button class="chip" data-action="toggle" data-key="f10">F10</button>
+              <button class="chip" data-action="toggle" data-key="pause">Pause</button>
+            </div>
+          </div>
+
+          <!-- Carte 3 : Annulation -->
+          <div class="key-card" data-action="cancel">
+            <div class="key-card-primary">
+              <div class="key-icon cancel">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              </div>
+              <div class="key-meta">
+                <div class="meta-title-row">
+                  <h4>Annulation de la dictée</h4>
+                  <span class="tag-subtle">Sécurité</span>
+                </div>
+                <p>Arrête l'écoute sans rien transcrire ni taper.</p>
+              </div>
+            </div>
+
+            <div class="key-card-controls">
+              <div class="keycap-container" id="boxCancelKey" title="Cliquez pour réassigner" role="button" tabindex="0" aria-label="Réassigner la touche d'annulation">
+                <div class="keycap" id="badgeCancelKey">ESC</div>
+              </div>
+
+              <button class="btn-assign" data-action="cancel">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span>Changer</span>
+              </button>
+            </div>
+
+            <div class="preset-chips">
+              <span class="preset-label">Suggestions :</span>
+              <button class="chip" data-action="cancel" data-key="esc">Esc</button>
+              <button class="chip" data-action="cancel" data-key="backspace">Retour arrière</button>
+              <button class="chip" data-action="cancel" data-key="f12">F12</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Préférences rapides -->
+        <div class="glass-card options-panel">
+          <div class="option-row">
+            <div class="option-info">
+              <span class="option-title">Retour sonore</span>
+              <span class="option-sub">Un son discret au début et à la fin de chaque dictée.</span>
+            </div>
+            <label class="glow-switch">
+              <input type="checkbox" id="checkSound" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div class="option-row">
+            <div class="option-info">
+              <span class="option-title">Jauge permanente</span>
+              <span class="option-sub">Toujours visible dès le lancement : 50 % au repos, 100 % pendant la dictée.</span>
+            </div>
+            <label class="glow-switch">
+              <input type="checkbox" id="checkOverlay" checked disabled>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ONGLET 2 : STUDIO -->
+      <!-- ============================================== -->
+      <section id="tab-test" class="tab-content" role="tabpanel">
+        <div class="test-layout">
+          <div class="glass-card studio-card">
+            <div class="studio-status-header">
+              <div class="studio-badge" id="studioStateBadge">
+                <span class="pulse-dot"></span>
+                <span id="studioStateText">Prêt</span>
+              </div>
+              <div class="studio-timer" id="studioTimer">00:00.0</div>
+            </div>
+
+            <div class="mic-stage">
+              <div class="mic-rings">
+                <div class="ring ring-1"></div>
+                <div class="ring ring-2"></div>
+                <div class="ring ring-3"></div>
+              </div>
+
+              <button class="btn-hero-mic" id="btnBigMic" aria-label="Démarrer l'enregistrement test">
+                <svg class="mic-svg" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                  <line x1="12" x2="12" y1="19" y2="22"></line>
+                </svg>
+              </button>
+
+              <div class="mic-caption">
+                <h3 id="micHeading">Testez votre dictée</h3>
+                <p id="micSubtext">Cliquez sur le micro, ou utilisez votre raccourci global où que vous soyez</p>
+              </div>
+            </div>
+
+            <div class="visualizer-wrapper">
+              <div class="visualizer-header">
+                <span class="viz-label">NIVEAU MICRO</span>
+                <span class="viz-db" id="peakDbLabel">−∞ dB</span>
+              </div>
+              <canvas id="visualizerCanvas" width="700" height="90"></canvas>
+              <div class="vu-meter-bar">
+                <div class="vu-meter-fill" id="vuMeterFill" style="width: 0%;"></div>
+                <div class="vu-meter-peak" id="vuMeterPeak" style="left: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card output-card">
+            <div class="output-top-bar">
+              <div class="output-meta-left">
+                <span class="output-title">Texte transcrit</span>
+                <span class="meta-tag" id="statChars">0 car.</span>
+                <span class="meta-tag" id="statWords">0 mots</span>
+              </div>
+              <div class="output-meta-right">
+                <div class="latency-chip" id="latencyBadge">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  <span id="latencyText">Latence : — ms</span>
+                </div>
+                <button class="btn-action-tool" id="btnCopy" title="Copier le texte">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  <span>Copier</span>
+                </button>
+                <button class="btn-action-tool" id="btnClear" title="Effacer le texte">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  <span>Effacer</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="textarea-wrapper">
+              <textarea id="txtOutput" placeholder="Parlez, votre texte apparaîtra ici avec sa ponctuation et ses accents." readonly spellcheck="false"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ONGLET 3 : PARAMÈTRES -->
+      <!-- ============================================== -->
+      <section id="tab-settings" class="tab-content" role="tabpanel">
+        <div class="settings-layout">
+          <div class="glass-card hw-card">
+            <div class="hw-card-header">
+              <div class="hw-icon-box">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+              </div>
+              <div>
+                <h4>Accélération matérielle</h4>
+                <p>La transcription s'exécute entièrement sur votre carte graphique.</p>
+              </div>
+              <span class="cuda-badge">CUDA • FP16</span>
+            </div>
+
+            <div class="hw-metrics-grid">
+              <div class="metric-item">
+                <span class="m-label">GPU</span>
+                <span class="m-val highlight">GeForce RTX 4050</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-label">Architecture</span>
+                <span class="m-val">Ada Lovelace</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-label">Précision</span>
+                <span class="m-val">Float16</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-label">Latence</span>
+                <span class="m-val highlight-green">150–250 ms</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card setting-section">
+            <div class="setting-title-row">
+              <div class="s-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+              </div>
+              <div>
+                <h4>Modèle</h4>
+                <p>Les grands modèles sont plus précis, les petits plus rapides à charger.</p>
+              </div>
+            </div>
+
+            <div class="custom-select-wrapper">
+              <select class="custom-select" id="selectModel">
+                <option value="large-v3-turbo" selected>large-v3-turbo — recommandé (800 Mo de VRAM)</option>
+                <option value="medium">medium — équilibré (1,5 Go de VRAM)</option>
+                <option value="small">small — le plus rapide (500 Mo de VRAM)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="glass-card setting-section">
+            <div class="setting-title-row">
+              <div class="s-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              </div>
+              <div>
+                <h4>Langue</h4>
+                <p>Définir la langue évite la détection automatique et accélère la transcription.</p>
+              </div>
+            </div>
+
+            <div class="custom-select-wrapper">
+              <select class="custom-select" id="selectLanguage">
+                <option value="fr" selected>Français</option>
+                <option value="en">English</option>
+                <option value="auto">Détection automatique</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modale d'assignation de touche -->
+  <div class="key-capture-hud" id="keyCaptureHud" role="dialog" aria-modal="true" aria-labelledby="hudActionTitle">
+    <div class="hud-backdrop" id="hudBackdrop"></div>
+    <div class="hud-card">
+      <div class="hud-header">
+        <div class="hud-pulse-ring">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"></path></svg>
+        </div>
+        <h3 id="hudActionTitle">Assigner un raccourci</h3>
+        <p>Appuyez sur une touche ou un bouton de la souris…</p>
+      </div>
+
+      <div class="hud-key-display-box">
+        <div class="hud-keycap" id="hudCapturedKey">…</div>
+      </div>
+
+      <div class="hud-suggestions">
+        <span>Suggestions</span>
+        <div class="sug-chips">
+          <button class="sug-btn" data-key="f8">F8</button>
+          <button class="sug-btn" data-key="f9">F9</button>
+          <button class="sug-btn" data-key="pause">Pause</button>
+          <button class="sug-btn" data-key="insert">Insert</button>
+          <button class="sug-btn" data-key="ctrl+win">Ctrl + Win</button>
+          <button class="sug-btn" data-key="alt+space">Alt + Espace</button>
+        </div>
+      </div>
+
+      <div class="hud-actions">
+        <button class="btn-hud-cancel" id="btnCancelHud">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div class="toast-container" id="toast" role="status" aria-live="polite">
+    <div class="toast-icon" id="toastIcon">✓</div>
+    <span class="toast-message" id="toastMessage"></span>
+    <button class="toast-action" id="toastAction" hidden>Annuler</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

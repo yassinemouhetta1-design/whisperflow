@@ -1,0 +1,13 @@
+{
+  "hotkey_push": "ctrl+win",
+  "hotkey_toggle": "mouse5",
+  "hotkey_cancel": "esc",
+  "model_size": "large-v3-turbo",
+  "device": "cuda",
+  "compute_type": "float16",
+  "language": "fr",
+  "sound_feedback": false,
+  "show_overlay": true,
+  "beam_size": 1,
+  "vad_filter": true
+}
